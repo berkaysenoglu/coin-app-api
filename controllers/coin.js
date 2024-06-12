@@ -39,9 +39,9 @@ const updateCoin = async (req, res) => {
 
 const deleteCoin = async (req, res) => {
   const { id } = req.params;
-
+console.log(id)
   try {
-    await Coin.findByIdAndRemove(id);
+    await Coin.findByIdAndDelete(id);
     res.status(200).json({ message: 'Coin deleted successfully' });
   } catch (error) {
     res.status(404).json({ message: error.message });

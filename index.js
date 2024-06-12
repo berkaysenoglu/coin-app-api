@@ -19,6 +19,26 @@ app.use("/coins", Coin);
 app.get("/",(req,res) => {
     res.json({message : "deneme deneme"})
 })
+app.get('/coins', async (req, res) => {
+    try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const skip = (page - 1) * limit;
+  
+      const coins = await Coin.find().skip(skip).limit(limit);
+      const total = await Coin.countDocuments();
+  
+      res.json({
+        coins,
+        total,
+        page,
+        pages: Math.ceil(total / limit)
+      });
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
+  });
+
 db().then(() => {
     seedCoins(); 
   });
