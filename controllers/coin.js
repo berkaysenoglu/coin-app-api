@@ -56,10 +56,43 @@ const updateCoin = async (req, res) => {
 
 const deleteCoin = async (req, res) => {
   const { id } = req.params;
-  console.log(id)
+
   try {
     await Coin.findByIdAndDelete(id);
-    res.status(200).json({ message: 'Coin deleted successfully' });
+
+    
+    let page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const total = await Coin.countDocuments();
+
+    if (skip >= total && page > 1) {
+      
+      page--;
+
+      
+      const newSkip = (page - 1) * limit;
+
+      
+      const coins = await Coin.find().skip(newSkip).limit(limit);
+
+      res.json({
+        coins,
+        total,
+        page,
+        pages: Math.ceil(total / limit),
+      });
+    } else {
+      
+      const coins = await Coin.find().skip(skip).limit(limit);
+
+      res.json({
+        coins,
+        total,
+        page,
+        pages: Math.ceil(total / limit),
+      });
+    }
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
